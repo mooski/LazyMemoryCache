@@ -61,6 +61,9 @@ namespace Mooski.Caching
             }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LazyMemoryCache{T}"/> class.
+        /// </summary>
         public LazyMemoryCache(Func<T> valueFactory, IMemoryCache memoryCache, TimeSpan expiration)
         {
             ValueFactory = valueFactory;

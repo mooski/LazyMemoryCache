@@ -4,6 +4,19 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <AssemblyName>Mooski.Caching.LazyMemoryCache</AssemblyName>
     <RootNamespace>Mooski.Caching</RootNamespace>
+    <Authors>Mark Willmer</Authors>
+    <Company>Mooski</Company>
+    <Copyright>Copyright © Mooski 2017</Copyright>
+    <PackageProjectUrl>https://github.com/mooski/LazyMemoryCache</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/mooski/LazyMemoryCache</RepositoryUrl>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>bin\Debug\netcoreapp2.0\Mooski.Caching.LazyMemoryCache.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\Release\netcoreapp2.0\Mooski.Caching.LazyMemoryCache.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

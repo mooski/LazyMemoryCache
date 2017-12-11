@@ -8,6 +8,16 @@
     <AssemblyName>Mooski.Caching.LazyMemoryCache.Tests</AssemblyName>
 
     <RootNamespace>Mooski.Caching</RootNamespace>
+
+    <Authors>Mark Willmer</Authors>
+
+    <Company>Mooski</Company>
+
+    <PackageProjectUrl>https://github.com/mooski/LazyMemoryCache</PackageProjectUrl>
+
+    <RepositoryUrl>https://github.com/mooski/LazyMemoryCache</RepositoryUrl>
+
+    <Copyright>Copyright © Mooski 2017</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
