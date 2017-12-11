@@ -10,6 +10,7 @@
     <PackageProjectUrl>https://github.com/mooski/LazyMemoryCache</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mooski/LazyMemoryCache</RepositoryUrl>
     <PackageIconUrl>https://avatars1.githubusercontent.com/u/34440165?s=400&amp;u=610997ba43c0109b6c320e4f94a24f9ea4c06620&amp;v=4</PackageIconUrl>
+    <Description>LazyMemoryCache provides support for lazy in-memory caching.</Description>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
