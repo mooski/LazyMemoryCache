@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Mooski.Caching
@@ -9,8 +8,6 @@ namespace Mooski.Caching
     /// </summary>
     public class LazyMemoryCache<T>
     {
-        private int _isValueCreated = 0;
-
         private Func<T> ValueFactory { get; }
 
         private IMemoryCache MemoryCache { get; }
@@ -22,14 +19,12 @@ namespace Mooski.Caching
         private string CacheKey { get; }
 
         /// <summary>
-        /// Gets the lazily initialized value of this <see cref="LazyMemoryCache{T}"/> instance from cache if it exists, or from the value factory if not.
+        /// Gets the lazily initialized value. This value will come from the cache object with the key <see cref="CacheKey"/> if it exists, or from the value factory if not.
         /// </summary>
         public T Value
         {
             get
             {
-                Interlocked.Exchange(ref _isValueCreated, 1);
-
                 var isInCache = MemoryCache.TryGetValue<T>(CacheKey, out var value);
 
                 if (!isInCache)
@@ -51,30 +46,19 @@ namespace Mooski.Caching
         }
 
         /// <summary>
-        /// Gets a value that indicates whether a value has ever been created for this <see cref="LazyMemoryCache{T}"/> instance.
-        /// </summary>
-        public bool IsValueCreated
-        {
-            get
-            {
-                return _isValueCreated == 1;
-            }
-        }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="LazyMemoryCache{T}"/> class.
         /// </summary>
-        public LazyMemoryCache(Func<T> valueFactory, IMemoryCache memoryCache, TimeSpan expiration)
+        public LazyMemoryCache(Func<T> valueFactory, IMemoryCache memoryCache, TimeSpan expiration, string cacheKey, ref object cacheLock)
         {
             ValueFactory = valueFactory;
             MemoryCache = memoryCache;
             Expiration = expiration;
-            CacheLock = new object();
-            CacheKey = $"LazyMemoryCache.{Guid.NewGuid()}";
+            CacheKey = cacheKey;
+            CacheLock = cacheLock;
         }
 
         /// <summary>
-        /// Resets the value of this <see cref="LazyMemoryCache{T}"/> instance, forcing the value to be read from the value factory again.
+        /// Resets the value by removing the cache object with the key <see cref="CacheKey"/> from cache. This forces the value to be read from the value factory again.
         /// </summary>
         public void Reset()
         {

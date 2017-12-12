@@ -27,12 +27,13 @@ namespace Mooski.Caching
         [Fact]
         public void ValueIsCorrect()
         {
+            var cacheLock = new object();
             var lazyMemoryCache = new LazyMemoryCache<string>(
                 () =>
                 {
                     return "Value";
                 },
-                _memoryCache, TimeSpan.FromMinutes(1));
+                _memoryCache, TimeSpan.FromMinutes(1), Guid.NewGuid().ToString(), ref cacheLock);
 
             Assert.Equal("Value", lazyMemoryCache.Value);
         }
@@ -41,7 +42,7 @@ namespace Mooski.Caching
         public void ValueFactoryIsOnlyCalledWhenCacheExpires()
         {
             var factoryCallCount = 0;
-
+            var cacheLock = new object();
             var lazyMemoryCache = new LazyMemoryCache<int>(
                 () =>
                 {
@@ -49,7 +50,7 @@ namespace Mooski.Caching
 
                     return 0;
                 },
-                _memoryCache, TimeSpan.FromMinutes(1));
+                _memoryCache, TimeSpan.FromMinutes(1), Guid.NewGuid().ToString(), ref cacheLock);
 
             Assert.Equal(0, factoryCallCount);
 
@@ -81,27 +82,10 @@ namespace Mooski.Caching
         }
 
         [Fact]
-        public void IsValueCreatedWorksCorrectly()
-        {
-            var lazyMemoryCache = new LazyMemoryCache<int>(
-                () =>
-                {
-                    return 0;
-                },
-                _memoryCache, TimeSpan.FromMinutes(1));
-
-            Assert.False(lazyMemoryCache.IsValueCreated);
-
-            var value = lazyMemoryCache.Value;
-
-            Assert.True(lazyMemoryCache.IsValueCreated);
-        }
-
-        [Fact]
         public void ResetWorksCorrectly()
         {
             var factoryCallCount = 0;
-
+            var cacheLock = new object();
             var lazyMemoryCache = new LazyMemoryCache<int>(
                 () =>
                 {
@@ -109,7 +93,7 @@ namespace Mooski.Caching
 
                     return 0;
                 },
-                _memoryCache, TimeSpan.FromMinutes(1));
+                _memoryCache, TimeSpan.FromMinutes(1), Guid.NewGuid().ToString(), ref cacheLock);
 
             Assert.Equal(0, factoryCallCount);
 
@@ -130,7 +114,7 @@ namespace Mooski.Caching
         public void AsyncCallsWorkCorrectly()
         {
             var factoryCallCount = 0;
-
+            var cacheLock = new object();
             var lazyMemoryCache = new LazyMemoryCache<int>(
                 () =>
                 {
@@ -138,7 +122,7 @@ namespace Mooski.Caching
 
                     return 0;
                 },
-                _memoryCache, TimeSpan.FromMinutes(1));
+                _memoryCache, TimeSpan.FromMinutes(1), Guid.NewGuid().ToString(), ref cacheLock);
 
             Assert.Equal(0, factoryCallCount);
 
@@ -151,6 +135,40 @@ namespace Mooski.Caching
             task3.Start();
 
             Task.WaitAll(task1, task2, task3);
+
+            Assert.Equal(1, factoryCallCount);
+        }
+
+        [Fact]
+        public void MultipleInstancesWorkCorrectly()
+        {
+            var factoryCallCount = 0;
+            var cacheKey = Guid.NewGuid().ToString();
+            var cacheLock = new object();
+            var lazyMemoryCache1 = new LazyMemoryCache<int>(
+                () =>
+                {
+                    Interlocked.Increment(ref factoryCallCount);
+
+                    return 0;
+                },
+                _memoryCache, TimeSpan.FromMinutes(1), cacheKey, ref cacheLock);
+            var lazyMemoryCache2 = new LazyMemoryCache<int>(
+                () =>
+                {
+                    Interlocked.Increment(ref factoryCallCount);
+
+                    return 0;
+                },
+                _memoryCache, TimeSpan.FromMinutes(1), cacheKey, ref cacheLock);
+
+            Assert.Equal(0, factoryCallCount);
+
+            var value = lazyMemoryCache1.Value;
+
+            Assert.Equal(1, factoryCallCount);
+
+            value = lazyMemoryCache2.Value;
 
             Assert.Equal(1, factoryCallCount);
         }
