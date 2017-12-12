@@ -10,31 +10,11 @@ namespace Mooski.Caching
     /// </summary>
     public class LazyMemoryCache<T>
     {
-        public class CacheOptions
-        {
-            public TimeSpan Expiration { get; }
-
-            [Required]
-            public string Key { get; }
-
-            [Required]
-            public object Lock { get; }
-
-            public CacheOptions(TimeSpan expiration, string key, object @lock)
-            {
-                Expiration = expiration;
-                Key = key;
-                Lock = @lock;
-
-                Validator.ValidateObject(this, new ValidationContext(this));
-            }
-        }
-
         private Func<T> ValueFactory { get; }
 
         private IMemoryCache MemoryCache { get; }
 
-        private CacheOptions Options { get; }
+        private LazyMemoryCacheOptions Options { get; }
 
         /// <summary>
         /// Gets the lazily initialized value. This value will come from the cache object with the provided key if it exists, or from the value factory if not.
@@ -66,7 +46,7 @@ namespace Mooski.Caching
         /// <summary>
         /// Initializes a new instance of the <see cref="LazyMemoryCache{T}"/> class.
         /// </summary>
-        public LazyMemoryCache(Func<T> valueFactory, IMemoryCache memoryCache, CacheOptions options)
+        public LazyMemoryCache(Func<T> valueFactory, IMemoryCache memoryCache, LazyMemoryCacheOptions options)
         {
             ValueFactory = valueFactory;
             MemoryCache = memoryCache;
