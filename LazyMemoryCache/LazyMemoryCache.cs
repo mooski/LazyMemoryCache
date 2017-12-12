@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Mooski.Caching
@@ -8,35 +10,51 @@ namespace Mooski.Caching
     /// </summary>
     public class LazyMemoryCache<T>
     {
+        public class CacheOptions
+        {
+            public TimeSpan Expiration { get; }
+
+            [Required]
+            public string Key { get; }
+
+            [Required]
+            public object Lock { get; }
+
+            public CacheOptions(TimeSpan expiration, string key, object @lock)
+            {
+                Expiration = expiration;
+                Key = key;
+                Lock = @lock;
+
+                Validator.ValidateObject(this, new ValidationContext(this));
+            }
+        }
+
         private Func<T> ValueFactory { get; }
 
         private IMemoryCache MemoryCache { get; }
 
-        private TimeSpan Expiration { get; }
-
-        private object CacheLock { get; }
-
-        private string CacheKey { get; }
+        private CacheOptions Options { get; }
 
         /// <summary>
-        /// Gets the lazily initialized value. This value will come from the cache object with the key <see cref="CacheKey"/> if it exists, or from the value factory if not.
+        /// Gets the lazily initialized value. This value will come from the cache object with the provided key if it exists, or from the value factory if not.
         /// </summary>
         public T Value
         {
             get
             {
-                var isInCache = MemoryCache.TryGetValue<T>(CacheKey, out var value);
+                var isInCache = MemoryCache.TryGetValue<T>(Options.Key, out var value);
 
                 if (!isInCache)
                 {
-                    lock (CacheLock)
+                    lock (Options.Lock)
                     {
-                        isInCache = MemoryCache.TryGetValue<T>(CacheKey, out value);
+                        isInCache = MemoryCache.TryGetValue<T>(Options.Key, out value);
 
                         if (!isInCache)
                         {
                             value = ValueFactory();
-                            MemoryCache.Set(CacheKey, value, Expiration);
+                            MemoryCache.Set(Options.Key, value, Options.Expiration);
                         }
                     }
                 }
@@ -48,23 +66,21 @@ namespace Mooski.Caching
         /// <summary>
         /// Initializes a new instance of the <see cref="LazyMemoryCache{T}"/> class.
         /// </summary>
-        public LazyMemoryCache(Func<T> valueFactory, IMemoryCache memoryCache, TimeSpan expiration, string cacheKey, ref object cacheLock)
+        public LazyMemoryCache(Func<T> valueFactory, IMemoryCache memoryCache, CacheOptions options)
         {
             ValueFactory = valueFactory;
             MemoryCache = memoryCache;
-            Expiration = expiration;
-            CacheKey = cacheKey;
-            CacheLock = cacheLock;
+            Options = options;
         }
 
         /// <summary>
-        /// Resets the value by removing the cache object with the key <see cref="CacheKey"/> from cache. This forces the value to be read from the value factory again.
+        /// Resets the value by removing the cache object with the provided key from cache. This forces the value to be read from the value factory again.
         /// </summary>
         public void Reset()
         {
-            lock (CacheLock)
+            lock (Options.Lock)
             {
-                MemoryCache.Remove(CacheKey);
+                MemoryCache.Remove(Options.Key);
             }
         }
     }
