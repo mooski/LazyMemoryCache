@@ -1,7 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+#if NETCOREAPP2_0
 using Microsoft.Extensions.Caching.Memory;
+#elif NET45
+using System.Runtime.Caching;
+#endif
+using Mooski.Caching.Extensions;
 
 namespace Mooski.Caching
 {
@@ -12,7 +15,11 @@ namespace Mooski.Caching
     {
         private Func<T> ValueFactory { get; }
 
+#if NETCOREAPP2_0
         private IMemoryCache MemoryCache { get; }
+#elif NET45
+        private MemoryCache MemoryCache { get; }
+#endif
 
         private LazyMemoryCacheOptions Options { get; }
 
@@ -23,18 +30,18 @@ namespace Mooski.Caching
         {
             get
             {
-                var isInCache = MemoryCache.TryGetValue<T>(Options.Key, out var value);
+                var isInCache = MemoryCache.TryGetCacheValue<T>(Options.Key, out var value);
 
                 if (!isInCache)
                 {
                     lock (Options.Lock)
                     {
-                        isInCache = MemoryCache.TryGetValue<T>(Options.Key, out value);
+                        isInCache = MemoryCache.TryGetCacheValue<T>(Options.Key, out value);
 
                         if (!isInCache)
                         {
                             value = ValueFactory();
-                            MemoryCache.Set(Options.Key, value, Options.Expiration);
+                            MemoryCache.Set(Options.Key, value, Options.Clock.UtcNow.Add(Options.Expiration));
                         }
                     }
                 }
@@ -46,7 +53,14 @@ namespace Mooski.Caching
         /// <summary>
         /// Initializes a new instance of the <see cref="LazyMemoryCache{T}"/> class.
         /// </summary>
-        public LazyMemoryCache(Func<T> valueFactory, IMemoryCache memoryCache, LazyMemoryCacheOptions options)
+        public LazyMemoryCache(
+            Func<T> valueFactory,
+#if NETCOREAPP2_0
+            IMemoryCache memoryCache,
+#elif NET45
+            MemoryCache memoryCache,
+#endif
+            LazyMemoryCacheOptions options)
         {
             ValueFactory = valueFactory;
             MemoryCache = memoryCache;

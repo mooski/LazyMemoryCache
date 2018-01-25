@@ -27,7 +27,7 @@ namespace Mooski.Caching
         [Fact]
         public void ValueIsCorrect()
         {
-            var cacheOptions = new LazyMemoryCacheOptions(TimeSpan.FromMinutes(1), Guid.NewGuid().ToString(), new object());
+            var cacheOptions = new LazyMemoryCacheOptions(TimeSpan.FromMinutes(1), Guid.NewGuid().ToString(), new object()) { Clock = _systemClockMock.Object };
             var lazyMemoryCache = new LazyMemoryCache<string>(() =>
                 {
                     return "Value";
@@ -41,7 +41,7 @@ namespace Mooski.Caching
         public void ValueFactoryIsOnlyCalledWhenCacheExpires()
         {
             var factoryCallCount = 0;
-            var cacheOptions = new LazyMemoryCacheOptions(TimeSpan.FromMinutes(1), Guid.NewGuid().ToString(), new object());
+            var cacheOptions = new LazyMemoryCacheOptions(TimeSpan.FromMinutes(1), Guid.NewGuid().ToString(), new object()) { Clock = _systemClockMock.Object };
             var lazyMemoryCache = new LazyMemoryCache<int>(
                 () =>
                 {
@@ -84,7 +84,7 @@ namespace Mooski.Caching
         public void ResetWorksCorrectly()
         {
             var factoryCallCount = 0;
-            var cacheOptions = new LazyMemoryCacheOptions(TimeSpan.FromMinutes(1), Guid.NewGuid().ToString(), new object());
+            var cacheOptions = new LazyMemoryCacheOptions(TimeSpan.FromMinutes(1), Guid.NewGuid().ToString(), new object()) { Clock = _systemClockMock.Object };
             var lazyMemoryCache = new LazyMemoryCache<int>(
                 () =>
                 {
@@ -113,7 +113,7 @@ namespace Mooski.Caching
         public void AsyncCallsWorkCorrectly()
         {
             var factoryCallCount = 0;
-            var cacheOptions = new LazyMemoryCacheOptions(TimeSpan.FromMinutes(1), Guid.NewGuid().ToString(), new object());
+            var cacheOptions = new LazyMemoryCacheOptions(TimeSpan.FromMinutes(1), Guid.NewGuid().ToString(), new object()) { Clock = _systemClockMock.Object };
             var lazyMemoryCache = new LazyMemoryCache<int>(
                 () =>
                 {
@@ -142,7 +142,7 @@ namespace Mooski.Caching
         public void MultipleInstancesWorkCorrectly()
         {
             var factoryCallCount = 0;
-            var cacheOptions = new LazyMemoryCacheOptions(TimeSpan.FromMinutes(1), Guid.NewGuid().ToString(), new object());
+            var cacheOptions = new LazyMemoryCacheOptions(TimeSpan.FromMinutes(1), Guid.NewGuid().ToString(), new object()) { Clock = _systemClockMock.Object };
             var lazyMemoryCache1 = new LazyMemoryCache<int>(
                 () =>
                 {
