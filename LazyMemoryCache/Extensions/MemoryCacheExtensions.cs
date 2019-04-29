@@ -1,4 +1,4 @@
-﻿#if NETCOREAPP2_0
+﻿#if NETSTANDARD2_0
 using Microsoft.Extensions.Caching.Memory;
 #elif NET45
 using System.Runtime.Caching;
@@ -8,7 +8,7 @@ namespace Mooski.Caching.Extensions
 {
     internal static class MemoryCacheExtensions
     {
-#if NETCOREAPP2_0
+#if NETSTANDARD2_0
         internal static bool TryGetCacheValue<T>(this IMemoryCache memoryCache, object key, out T value)
         {
             return memoryCache.TryGetValue<T>(key, out value);

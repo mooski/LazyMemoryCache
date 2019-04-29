@@ -1,5 +1,5 @@
 ﻿using System;
-#if NETCOREAPP2_0
+#if NETSTANDARD2_0
 using Microsoft.Extensions.Caching.Memory;
 #elif NET45
 using System.Runtime.Caching;
@@ -15,7 +15,7 @@ namespace Mooski.Caching
     {
         private Func<T> ValueFactory { get; }
 
-#if NETCOREAPP2_0
+#if NETSTANDARD2_0
         private IMemoryCache MemoryCache { get; }
 #elif NET45
         private MemoryCache MemoryCache { get; }
@@ -55,7 +55,7 @@ namespace Mooski.Caching
         /// </summary>
         public LazyMemoryCache(
             Func<T> valueFactory,
-#if NETCOREAPP2_0
+#if NETSTANDARD2_0
             IMemoryCache memoryCache,
 #elif NET45
             MemoryCache memoryCache,

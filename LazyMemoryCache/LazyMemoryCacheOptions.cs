@@ -1,6 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-#if NETCOREAPP2_0
+#if NETSTANDARD2_0
 using Microsoft.Extensions.Internal;
 #elif NET45
 using Microsoft.Owin.Infrastructure;
